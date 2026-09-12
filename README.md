@@ -1,5 +1,7 @@
 # 書籍管理API
 
+[![CI](https://github.com/k2kswr/BookManagementApp/actions/workflows/ci.yml/badge.svg)](https://github.com/k2kswr/BookManagementApp/actions/workflows/ci.yml)
+
 Kotlin / Spring Boot / jOOQ / PostgreSQL による書籍管理のバックエンドAPIです。
 書籍・著者の登録と更新、著者に紐づく書籍の取得に対応します。
 
