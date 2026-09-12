@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: book-management-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/books}
+    username: ${DB_USER:books}
+    password: ${DB_PASSWORD:books}
+  jooq:
+    sql-dialect: POSTGRES
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+      fail-on-null-for-primitives: true
+      fail-on-numbers-for-enums: true
+      accept-float-as-int: false
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
