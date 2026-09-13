@@ -14,14 +14,23 @@ Kotlin / Spring Boot / jOOQ / PostgreSQL による書籍管理のバックエン
 GradleはWrapperを同梱しています。グローバルインストールは不要です。
 Windowsでは以下の `./gradlew` を `.\gradlew.bat` に置き換えて実行できます。
 
-## 起動
+## クイックスタート
 
-```sh
-docker compose up -d --wait
-./gradlew bootRun
-```
+APIは `http://localhost:8080` で起動します。最初にDockerでPostgreSQLを起動し、別のターミナルでSpring Bootを起動します。Spring Bootを起動したターミナルはそのまま開いておき、API操作は別のターミナルで行います。
 
-APIは `http://localhost:8080` で起動します。ビルド時には次の順で処理されます。
+| 操作 | Windows PowerShell | macOS / Linux |
+| --- | --- | --- |
+| PostgreSQLを起動 | `docker compose up -d --wait` | `docker compose up -d --wait` |
+| APIを起動 | `.\gradlew.bat bootRun` | `./gradlew bootRun` |
+| 全テスト | `.\gradlew.bat clean build` | `./gradlew clean build` |
+| PostgreSQLに接続 | `docker compose exec db psql -U books -d books` | `docker compose exec db psql -U books -d books` |
+| レコードを全削除 | `docker compose exec db psql -U books -d books -c "TRUNCATE book_authors, books, authors RESTART IDENTITY CASCADE;"` | 同左 |
+| DBを停止（レコードは保持） | `docker compose stop` | `docker compose stop` |
+| DBを作り直す（レコードを全削除） | `docker compose down -v` | `docker compose down -v` |
+
+`docker compose down -v` はDBのレコードを削除します。次回起動後に、Flywayがテーブルを作成します。
+
+起動時、ビルドは次の順で処理されます。
 
 1. `flywayMigrate`：開発用PostgreSQLにマイグレーション適用。
 2. `jooqCodegen`：適用済みの3テーブルからJavaコードを `build/generated/jooq` に生成。
@@ -31,15 +40,10 @@ APIは `http://localhost:8080` で起動します。ビルド時には次の順�
 Flywayの履歴テーブルは生成対象外です。生成コードはGit管理せず、SQLから再生成します。
 IDEへの初回インポート時は、先に `./gradlew jooqCodegen` を実行してください。
 
+作成された実行可能JARは、次のように起動できます。
+
 ```sh
-# ビルドと全検証
-./gradlew clean build
-
-# 作成された実行可能JARで起動
 java -jar build/libs/book-management-api-0.0.1-SNAPSHOT.jar
-
-# DBを停止（保存データは維持）
-docker compose stop
 ```
 
 JAR実行時にもFlywayが未適用マイグレーションを確認します。
@@ -68,67 +72,118 @@ ComposeはDBポートを `127.0.0.1` のみに公開します。
 | PUT | `/books/{bookId}` | 書籍更新・著者の差し替え | 200 |
 | GET | `/authors/{authorId}/books` | 対象著者が執筆した書籍一覧 | 200 |
 
-### 実行例（bash / curl）
+### 動作確認コマンド
 
-まず著者を登録します。以降のIDはレスポンスの値に置き換えてください。
-PowerShellでcurlを使う場合は `curl.exe` を使用するか、下記のPowerShell例を利用してください。
+以下は空のDBから実行する例です。登録後に返るIDを変数で保持するため、IDを手入力する必要がありません。
 
-```sh
-curl -i -X POST http://localhost:8080/authors \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"著者A","birthDate":"1990-01-01"}'
+#### Windows PowerShell
 
-curl -i -X POST http://localhost:8080/authors \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"著者B","birthDate":"1985-06-15"}'
-
-curl -i -X PUT http://localhost:8080/authors/1 \
-  -H 'Content-Type: application/json' \
-  -d '{"name":"著者A（更新）","birthDate":"1990-01-01"}'
-
-curl -i -X POST http://localhost:8080/books \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"Kotlin入門","price":1980.00,"authorIds":[1,2],"publicationStatus":"UNPUBLISHED"}'
-
-curl -i -X PUT http://localhost:8080/books/1 \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"Kotlin入門 改訂版","price":2200.00,"authorIds":[1,2],"publicationStatus":"PUBLISHED"}'
-
-curl -i http://localhost:8080/authors/1/books
-```
-
-書籍レスポンス例：
-
-```json
-{
-  "id": 1,
-  "title": "Kotlin入門 改訂版",
-  "price": 2200.00,
-  "publicationStatus": "PUBLISHED",
-  "authors": [
-    { "id": 1, "name": "著者A（更新）" },
-    { "id": 2, "name": "著者B" }
-  ]
-}
-```
-
-GETはこの形式の書籍を配列で返します。書籍ID昇順・著者ID昇順です。
-対象の著者以外の共著者もすべて含めます。著者が存在し、書籍がない場合は `[]` です。
-
-### PowerShellでの最小実行例
+Windowsでは `Invoke-RestMethod` を使います。表示の文字化けが起きる場合は、先に次を一度だけ実行してください。
 
 ```powershell
-$authorBody = @{ name = 'Author'; birthDate = '1990-01-01' } | ConvertTo-Json
-$author = Invoke-RestMethod http://localhost:8080/authors -Method Post -ContentType 'application/json' -Body $authorBody
-$bookBody = @{
-    title = 'Kotlin'
-    price = 1980.00
-    authorIds = @($author.id)
-    publicationStatus = 'UNPUBLISHED'
-} | ConvertTo-Json
-Invoke-RestMethod http://localhost:8080/books -Method Post -ContentType 'application/json' -Body $bookBody
-Invoke-RestMethod "http://localhost:8080/authors/$($author.id)/books"
+chcp 65001
+[Console]::InputEncoding = [System.Text.UTF8Encoding]::new()
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+$OutputEncoding = [Console]::OutputEncoding
 ```
+
+著者を登録します。
+
+```powershell
+$author = Invoke-RestMethod -Uri 'http://localhost:8080/authors' -Method Post -ContentType 'application/json; charset=utf-8' -Body (@{
+  name = 'Author A'
+  birthDate = '1990-01-01'
+} | ConvertTo-Json -Compress)
+
+$author
+```
+
+書籍を登録し、対象著者の書籍一覧を取得します。
+
+```powershell
+$book = Invoke-RestMethod -Uri 'http://localhost:8080/books' -Method Post -ContentType 'application/json; charset=utf-8' -Body (@{
+  title = 'Kotlin Intro'
+  price = 1200.00
+  authorIds = @($author.id)
+  publicationStatus = 'UNPUBLISHED'
+} | ConvertTo-Json -Compress)
+
+Invoke-RestMethod -Uri "http://localhost:8080/authors/$($author.id)/books"
+```
+
+著者と書籍を更新します。PUTは部分更新ではないため、全項目を送信します。
+
+```powershell
+$updatedAuthor = Invoke-RestMethod -Uri "http://localhost:8080/authors/$($author.id)" -Method Put -ContentType 'application/json; charset=utf-8' -Body (@{
+  name = 'Author A Updated'
+  birthDate = '1990-01-01'
+} | ConvertTo-Json -Compress)
+
+$updatedBook = Invoke-RestMethod -Uri "http://localhost:8080/books/$($book.id)" -Method Put -ContentType 'application/json; charset=utf-8' -Body (@{
+  title = 'Kotlin Intro Revised'
+  price = 1500.00
+  authorIds = @($author.id)
+  publicationStatus = 'PUBLISHED'
+} | ConvertTo-Json -Compress)
+```
+
+#### macOS / Linux
+
+macOS / Linuxの標準ターミナルでは `curl` を使います。著者登録後、レスポンスの`id`を控え、`AUTHOR_ID`と`BOOK_ID`を置き換えてください。
+
+```sh
+curl -i -X POST 'http://localhost:8080/authors' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -d '{"name":"Author A","birthDate":"1990-01-01"}'
+
+AUTHOR_ID=1
+
+curl -i -X POST 'http://localhost:8080/books' \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -d "{\"title\":\"Kotlin Intro\",\"price\":1200.00,\"authorIds\":[$AUTHOR_ID],\"publicationStatus\":\"UNPUBLISHED\"}"
+
+BOOK_ID=1
+
+curl -i "http://localhost:8080/authors/$AUTHOR_ID/books"
+```
+
+更新例です。
+
+```sh
+curl -i -X PUT "http://localhost:8080/authors/$AUTHOR_ID" \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -d '{"name":"Author A Updated","birthDate":"1990-01-01"}'
+
+curl -i -X PUT "http://localhost:8080/books/$BOOK_ID" \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -d "{\"title\":\"Kotlin Intro Revised\",\"price\":1500.00,\"authorIds\":[$AUTHOR_ID],\"publicationStatus\":\"PUBLISHED\"}"
+```
+
+#### 日本語データを登録する場合
+
+Windows PowerShellの端末設定に左右されないよう、日本語の例はUTF-8 JSONファイルとして用意しています。空のDBでは、次の順に実行してください。
+
+```powershell
+curl.exe -i -X POST 'http://localhost:8080/authors' -H 'Content-Type: application/json; charset=utf-8' --data-binary '@examples/author-ja.json'
+curl.exe -i -X POST 'http://localhost:8080/books' -H 'Content-Type: application/json; charset=utf-8' --data-binary '@examples/book-ja.json'
+```
+
+macOS / Linuxでは `curl.exe` を `curl` に置き換えます。`examples/book-ja.json` は著者IDが1であることを前提にしています。
+
+#### PostgreSQLを直接確認する
+
+```sql
+-- psqlに接続後、テーブルとデータを確認する
+\dt
+SELECT * FROM authors;
+SELECT * FROM books;
+SELECT * FROM book_authors;
+
+-- psqlを終了する
+\q
+```
+
+書籍一覧のレスポンスは、書籍ID昇順・著者ID昇順です。対象著者以外の共著者も含めます。著者が存在し、書籍がない場合は `[]` です。
 
 ### 検証ルール・前提
 
