@@ -11,6 +11,7 @@ Kotlin / Spring Boot / jOOQ / PostgreSQL による書籍管理のバックエン
 - [アーキテクチャ](docs/architecture.md)
 - [データベース](docs/database.md)
 - [API仕様](docs/api.md)
+- [評価観点チェックリスト](docs/evaluation-checklist.md)
 
 ## 必要な環境
 
