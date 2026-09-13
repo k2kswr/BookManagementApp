@@ -5,6 +5,13 @@
 Kotlin / Spring Boot / jOOQ / PostgreSQL による書籍管理のバックエンドAPIです。
 書籍・著者の登録と更新、著者に紐づく書籍の取得に対応します。
 
+開発者向けの詳細資料は[`docs/`](docs/)にあります。
+
+- [プロジェクト構成](docs/project-structure.md)
+- [アーキテクチャ](docs/architecture.md)
+- [データベース](docs/database.md)
+- [API仕様](docs/api.md)
+
 ## 必要な環境
 
 - JDK 21（`java -version` と `JAVA_HOME` を確認してください）
@@ -91,7 +98,7 @@ $OutputEncoding = [Console]::OutputEncoding
 
 ```powershell
 $author = Invoke-RestMethod -Uri 'http://localhost:8080/authors' -Method Post -ContentType 'application/json; charset=utf-8' -Body (@{
-  name = 'Author A'
+  name = 'user1'
   birthDate = '1990-01-01'
 } | ConvertTo-Json -Compress)
 
@@ -115,7 +122,7 @@ Invoke-RestMethod -Uri "http://localhost:8080/authors/$($author.id)/books"
 
 ```powershell
 $updatedAuthor = Invoke-RestMethod -Uri "http://localhost:8080/authors/$($author.id)" -Method Put -ContentType 'application/json; charset=utf-8' -Body (@{
-  name = 'Author A Updated'
+  name = 'user1 updated'
   birthDate = '1990-01-01'
 } | ConvertTo-Json -Compress)
 
@@ -134,7 +141,7 @@ macOS / Linuxの標準ターミナルでは `curl` を使います。著者登�
 ```sh
 curl -i -X POST 'http://localhost:8080/authors' \
   -H 'Content-Type: application/json; charset=utf-8' \
-  -d '{"name":"Author A","birthDate":"1990-01-01"}'
+  -d '{"name":"user1","birthDate":"1990-01-01"}'
 
 AUTHOR_ID=1
 
@@ -152,7 +159,7 @@ curl -i "http://localhost:8080/authors/$AUTHOR_ID/books"
 ```sh
 curl -i -X PUT "http://localhost:8080/authors/$AUTHOR_ID" \
   -H 'Content-Type: application/json; charset=utf-8' \
-  -d '{"name":"Author A Updated","birthDate":"1990-01-01"}'
+  -d '{"name":"user1 updated","birthDate":"1990-01-01"}'
 
 curl -i -X PUT "http://localhost:8080/books/$BOOK_ID" \
   -H 'Content-Type: application/json; charset=utf-8' \
