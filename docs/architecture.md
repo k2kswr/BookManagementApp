@@ -4,7 +4,7 @@ HTTP、業務ルール、SQLを分離するため、Controller → Service → R
 
 ```mermaid
 flowchart LR
-    Client[API Client] --> Controller
+    Browser[管理画面 / API Client] --> Controller
     Controller -->|DTO・Bean Validation| Service
     Service -->|業務ルール・トランザクション| Repository
     Repository -->|jOOQ DSL| PostgreSQL[(PostgreSQL)]
@@ -24,6 +24,13 @@ flowchart LR
 | Service | `AuthorService`, `BookService` | 生年月日、著者の存在、出版状況遷移、トランザクション境界 |
 | Repository | `AuthorRepository`, `BookRepository` | jOOQを使ったINSERT・UPDATE・SELECT、RecordからDTOへの変換 |
 | Common | `ApiException`, `ApiExceptionHandler` | 業務エラーと`ProblemDetail`形式のHTTPエラー応答 |
+| Static UI | `resources/static/` | Spring Bootから配信するHTML・CSS・JavaScript。既存APIを`fetch`で呼び出して管理画面を表示 |
+
+## 管理画面
+
+`GET /`では`resources/static/index.html`を配信します。画面は外部ライブラリを使用せず、同じSpring Bootプロセスから配信される`app.js`が既存APIを呼び出します。
+
+画面表示のために`GET /authors`と`GET /books`を追加しました。書籍フォームの著者選択肢、一覧、件数表示に使い、著者を選択した際の書籍表示は既存の`GET /authors/{authorId}/books`を利用します。
 
 ## 書籍登録・更新の流れ
 

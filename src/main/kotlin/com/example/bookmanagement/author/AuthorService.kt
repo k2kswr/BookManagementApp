@@ -9,6 +9,9 @@ import java.time.LocalDate
 
 @Service
 class AuthorService(private val repository: AuthorRepository, private val clock: Clock) {
+    @Transactional(readOnly = true)
+    fun findAll(): List<AuthorResponse> = repository.findAll()
+
     @Transactional
     fun create(request: AuthorRequest): AuthorResponse {
         validateBirthDate(request.birthDate)

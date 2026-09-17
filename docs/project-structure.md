@@ -23,7 +23,8 @@
 │   │   │   └── common/                       # API例外と共通エラー応答
 │   │   └── resources/
 │   │       ├── application.yaml              # DB接続・jOOQ・HTTP文字コード設定
-│   │       └── db/migration/                 # Flyway SQL
+│   │       ├── db/migration/                 # Flyway SQL
+│   │       └── static/                       # 管理画面のHTML・CSS・JavaScript
 │   └── test/kotlin/com/example/bookmanagement/
 │       ├── ApiIntegrationTest.kt             # HTTP・DB・同時更新の結合テスト
 │       ├── author/                           # 著者の単体テスト
@@ -44,6 +45,7 @@
 | `common/` | 400 / 404 / 409 / 500のエラー形式を統一 |
 | `db/migration/` | DBテーブルと制約を定義する唯一の正本 |
 | `examples/` | 端末文字コードの影響を受けずに日本語を送るためのUTF-8 JSON |
+| `resources/static/` | `GET /`で配信する、著者・書籍管理用の画面 |
 
 ## 生成物とGit管理
 

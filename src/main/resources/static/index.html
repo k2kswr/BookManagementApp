@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="書籍と著者を管理するための画面です。">
+  <title>書籍管理システム</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">BOOK MANAGEMENT</p>
+      <h1>書籍管理システム</h1>
+      <p class="subtitle">著者と書籍の登録・更新を行えます。</p>
+    </div>
+    <dl class="summary" aria-label="登録件数">
+      <div><dt>著者</dt><dd id="author-count">0</dd></div>
+      <div><dt>書籍</dt><dd id="book-count">0</dd></div>
+    </dl>
+  </header>
+
+  <main>
+    <div id="notice" class="notice" role="alert" hidden></div>
+    <nav class="tabs" aria-label="管理対象">
+      <button class="tab is-active" type="button" data-tab="authors" aria-selected="true">著者管理</button>
+      <button class="tab" type="button" data-tab="books" aria-selected="false">書籍管理</button>
+    </nav>
+
+    <section id="authors-panel" class="tab-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">AUTHORS</p>
+          <h2>著者管理</h2>
+        </div>
+        <p>著者を登録・更新し、執筆した書籍を確認できます。</p>
+      </div>
+      <div class="management-grid">
+        <form id="author-form" class="card form-card">
+          <div class="form-heading">
+            <h3 id="author-form-title">著者を登録</h3>
+            <button id="author-cancel" class="text-button" type="button" hidden>登録に戻す</button>
+          </div>
+          <input id="author-id" type="hidden">
+          <label>名前<input id="author-name" name="name" type="text" required maxlength="255" autocomplete="name"></label>
+          <label>生年月日<input id="author-birth-date" name="birthDate" type="date" required></label>
+          <button class="primary-button" id="author-submit" type="submit">登録する</button>
+        </form>
+        <div class="card table-card">
+          <div class="form-heading"><h3>著者一覧</h3><span id="authors-empty" class="muted" hidden>著者がいません。</span></div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>ID</th><th>名前</th><th>生年月日</th><th>操作</th></tr></thead>
+              <tbody id="authors-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <section class="card related-card" aria-live="polite">
+        <div class="form-heading"><h3 id="author-books-title">著者を選択してください</h3></div>
+        <p id="author-books-description" class="muted">一覧の「書籍を見る」を選ぶと、対象著者が執筆した書籍を表示します。</p>
+        <div id="author-books-list"></div>
+      </section>
+    </section>
+
+    <section id="books-panel" class="tab-panel" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">BOOKS</p>
+          <h2>書籍管理</h2>
+        </div>
+        <p>書籍には、登録済みの著者を1人以上選択してください。</p>
+      </div>
+      <div class="management-grid">
+        <form id="book-form" class="card form-card">
+          <div class="form-heading">
+            <h3 id="book-form-title">書籍を登録</h3>
+            <button id="book-cancel" class="text-button" type="button" hidden>登録に戻す</button>
+          </div>
+          <input id="book-id" type="hidden">
+          <label>タイトル<input id="book-title" name="title" type="text" required maxlength="255"></label>
+          <label>価格<input id="book-price" name="price" type="number" required min="0" max="9999999999.99" step="0.01" inputmode="decimal" placeholder="1200.00"></label>
+          <fieldset>
+            <legend>著者（1人以上）</legend>
+            <div id="author-checkboxes" class="checkbox-list"></div>
+            <p id="authors-required" class="muted" hidden>先に著者を登録してください。</p>
+          </fieldset>
+          <label>出版状況
+            <select id="book-status" name="publicationStatus" required>
+              <option value="UNPUBLISHED">未出版</option>
+              <option value="PUBLISHED">出版済み</option>
+            </select>
+          </label>
+          <p id="publication-note" class="form-note" hidden>出版済みの書籍は未出版へ変更できません。</p>
+          <button class="primary-button" id="book-submit" type="submit">登録する</button>
+        </form>
+        <div class="card table-card">
+          <div class="form-heading"><h3>書籍一覧</h3><span id="books-empty" class="muted" hidden>書籍がありません。</span></div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>ID</th><th>タイトル</th><th>価格</th><th>著者</th><th>出版状況</th><th>操作</th></tr></thead>
+              <tbody id="books-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js" defer></script>
+</body>
+</html>

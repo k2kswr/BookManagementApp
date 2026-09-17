@@ -1,9 +1,9 @@
-# 書籍管理API
+# 書籍管理システム
 
 [![CI](https://github.com/k2kswr/BookManagementApp/actions/workflows/ci.yml/badge.svg)](https://github.com/k2kswr/BookManagementApp/actions/workflows/ci.yml)
 
-Kotlin / Spring Boot / jOOQ / PostgreSQL による書籍管理のバックエンドAPIです。
-書籍・著者の登録と更新、著者に紐づく書籍の取得に対応します。
+Kotlin / Spring Boot / jOOQ / PostgreSQL による書籍管理アプリケーションです。
+書籍・著者の登録と更新、一覧・著者に紐づく書籍の取得に対応するAPIと、日本語の管理画面を提供します。
 
 開発者向けの詳細資料は[`docs/`](docs/)にあります。
 
@@ -24,7 +24,7 @@ Windowsでは以下の `./gradlew` を `.\gradlew.bat` に置き換えて実行�
 
 ## クイックスタート
 
-APIは `http://localhost:8080` で起動します。最初にDockerでPostgreSQLを起動し、別のターミナルでSpring Bootを起動します。Spring Bootを起動したターミナルはそのまま開いておき、API操作は別のターミナルで行います。
+アプリケーションは `http://localhost:8080` で起動します。最初にDockerでPostgreSQLを起動し、別のターミナルでSpring Bootを起動します。Spring Bootを起動したターミナルはそのまま開いておき、API操作は別のターミナルで行います。
 
 | 操作 | Windows PowerShell | macOS / Linux |
 | --- | --- | --- |
@@ -35,6 +35,8 @@ APIは `http://localhost:8080` で起動します。最初にDockerでPostgreSQL
 | レコードを全削除 | `docker compose exec db psql -U books -d books -c "TRUNCATE book_authors, books, authors RESTART IDENTITY CASCADE;"` | 同左 |
 | DBを停止（レコードは保持） | `docker compose stop` | `docker compose stop` |
 | DBを作り直す（レコードを全削除） | `docker compose down -v` | `docker compose down -v` |
+
+Spring Bootの起動後に[http://localhost:8080/](http://localhost:8080/)を開くと、管理画面を確認できます。著者・書籍の一覧、登録、全項目更新、著者ごとの執筆書籍の確認をブラウザ上で行えます。追加のNode.jsやnpmのセットアップは不要です。
 
 `docker compose down -v` はDBのレコードを削除します。次回起動後に、Flywayがテーブルを作成します。
 
@@ -74,8 +76,10 @@ ComposeはDBポートを `127.0.0.1` のみに公開します。
 
 | メソッド | パス | 処理 | 成功ステータス |
 | --- | --- | --- | --- |
+| GET | `/authors` | 著者一覧 | 200 |
 | POST | `/authors` | 著者登録 | 201 |
 | PUT | `/authors/{authorId}` | 著者更新 | 200 |
+| GET | `/books` | 書籍一覧 | 200 |
 | POST | `/books` | 書籍登録 | 201 |
 | PUT | `/books/{bookId}` | 書籍更新・著者の差し替え | 200 |
 | GET | `/authors/{authorId}/books` | 対象著者が執筆した書籍一覧 | 200 |
@@ -205,7 +209,7 @@ SELECT * FROM book_authors;
 - 出版済みの書籍もタイトル・価格・著者は更新可能。出版済みでの新規登録も可能。
 - IDはDB採番の64bit整数。クライアントからは指定しない。
 - 同時PUTは書籍行のロックで直列化する。許可される更新同士は後から実行された内容が残る。
-- 認証・削除・検索・ページング・フロントエンド・外部ホスティングは対象外。
+- 認証・削除・検索・ページング・外部ホスティングは対象外。
 
 ### エラー
 

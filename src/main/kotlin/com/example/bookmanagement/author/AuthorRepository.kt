@@ -6,6 +6,12 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class AuthorRepository(private val dsl: DSLContext) {
+    fun findAll(): List<AuthorResponse> = dsl.selectFrom(AUTHORS)
+        .orderBy(AUTHORS.ID)
+        .fetch { record ->
+            AuthorResponse(checkNotNull(record.id), checkNotNull(record.name), checkNotNull(record.birthDate))
+        }
+
     fun create(request: AuthorRequest): AuthorResponse {
         val record = checkNotNull(
             dsl.insertInto(AUTHORS)

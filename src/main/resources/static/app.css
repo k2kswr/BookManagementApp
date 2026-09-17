@@ -1,0 +1,85 @@
+:root {
+  --ink: #1f2933;
+  --muted: #637381;
+  --line: #d9e2e7;
+  --paper: #ffffff;
+  --canvas: #f4f7f6;
+  --primary: #176b61;
+  --primary-dark: #11564e;
+  --accent: #d9a441;
+  --danger: #a0352f;
+  font-family: "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--canvas);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2.5rem max(1.5rem, calc((100% - 1120px) / 2));
+  background: linear-gradient(120deg, #123f3a, #176b61);
+  color: white;
+}
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: .35rem; font-size: clamp(1.7rem, 3vw, 2.3rem); }
+h2 { margin-bottom: 0; font-size: 1.5rem; }
+h3 { margin-bottom: 0; font-size: 1.05rem; }
+.subtitle { margin-bottom: 0; color: #d7ebe8; }
+.eyebrow { margin-bottom: .45rem; color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+.summary { display: flex; gap: 1rem; margin: 0; }
+.summary div { min-width: 88px; padding: .7rem 1rem; border: 1px solid #74a59e; border-radius: .5rem; text-align: center; }
+.summary dt { font-size: .75rem; color: #d7ebe8; }
+.summary dd { margin: .15rem 0 0; font-size: 1.5rem; font-weight: 700; }
+
+main { max-width: 1120px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.notice { margin-bottom: 1rem; padding: .85rem 1rem; border-radius: .4rem; background: #dff3eb; color: #155b47; }
+.notice.is-error { background: #fde8e7; color: var(--danger); }
+.tabs { display: flex; gap: .3rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
+.tab { padding: .8rem 1.1rem; border: 0; border-bottom: 3px solid transparent; background: transparent; color: var(--muted); font-weight: 700; }
+.tab.is-active { border-color: var(--primary); color: var(--primary); }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.section-heading > p { margin-bottom: .2rem; color: var(--muted); font-size: .9rem; }
+.management-grid { display: grid; grid-template-columns: minmax(260px, .75fr) minmax(0, 1.7fr); gap: 1.25rem; }
+.card { padding: 1.25rem; border: 1px solid var(--line); border-radius: .65rem; background: var(--paper); box-shadow: 0 2px 8px rgb(31 41 51 / 4%); }
+.form-card { display: flex; flex-direction: column; gap: 1rem; }
+.form-heading { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+label { display: grid; gap: .4rem; font-size: .9rem; font-weight: 700; }
+input, select { width: 100%; padding: .65rem .7rem; border: 1px solid #b9c9cf; border-radius: .35rem; background: white; color: var(--ink); }
+input:focus, select:focus { outline: 3px solid #bde2dc; border-color: var(--primary); }
+fieldset { margin: 0; padding: .75rem; border: 1px solid var(--line); border-radius: .35rem; }
+legend { padding: 0 .3rem; font-size: .9rem; font-weight: 700; }
+.checkbox-list { display: grid; gap: .5rem; max-height: 170px; overflow-y: auto; }
+.checkbox-list label { display: flex; align-items: center; gap: .5rem; font-weight: 400; }
+.checkbox-list input { width: auto; }
+.primary-button { padding: .7rem 1rem; border: 0; border-radius: .35rem; background: var(--primary); color: white; font-weight: 700; }
+.primary-button:hover { background: var(--primary-dark); }
+.primary-button:disabled { cursor: not-allowed; background: #9aabae; }
+.text-button { border: 0; background: transparent; color: var(--primary); font-size: .85rem; text-decoration: underline; }
+.muted, .form-note { margin: 0; color: var(--muted); font-size: .85rem; }
+.form-note { color: #895d10; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { padding: .7rem .55rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; white-space: nowrap; }
+th { color: var(--muted); font-size: .75rem; }
+td.authors-cell { max-width: 170px; white-space: normal; }
+.table-button { margin-right: .45rem; padding: .35rem .55rem; border: 1px solid #98bab5; border-radius: .3rem; background: #f8fbfa; color: var(--primary-dark); font-size: .8rem; }
+.related-card { margin-top: 1.25rem; }
+.book-list { display: grid; gap: .65rem; margin: 1rem 0 0; }
+.book-item { padding: .8rem; border-left: 3px solid var(--accent); background: #fbfaf5; }
+.book-item strong { display: block; margin-bottom: .25rem; }
+
+@media (max-width: 720px) {
+  .site-header, .section-heading { align-items: flex-start; flex-direction: column; }
+  .site-header { gap: 1.25rem; }
+  .management-grid { grid-template-columns: 1fr; }
+  .summary { width: 100%; }
+  .summary div { flex: 1; }
+  main { padding: 1.5rem 1rem 3rem; }
+}

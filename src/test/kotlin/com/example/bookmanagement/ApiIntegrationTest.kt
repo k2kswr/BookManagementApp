@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.transaction.PlatformTransactionManager
@@ -113,6 +114,39 @@ class ApiIntegrationTest {
                 .content("""{"name":"Alice updated","birthDate":"2000-01-01"}"""),
         ).andExpect(status().isOk).andExpect(jsonPath("$.name").value("Alice updated"))
         mvc.perform(get("/authors/$id/books")).andExpect(status().isOk).andExpect(jsonPath("$").isEmpty)
+    }
+
+    @Test
+    fun `lists authors and books by id including all coauthors`() {
+        mvc.perform(get("/authors")).andExpect(status().isOk).andExpect(jsonPath("$").isEmpty)
+        mvc.perform(get("/books")).andExpect(status().isOk).andExpect(jsonPath("$").isEmpty)
+
+        val alice = author("Alice")
+        val bob = author("Bob")
+        val firstBook = createBook(bookRequest(listOf(bob, alice), title = "First"))
+        createBook(bookRequest(listOf(bob), title = "Second"))
+
+        mvc.perform(get("/authors"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(alice))
+            .andExpect(jsonPath("$[1].id").value(bob))
+
+        mvc.perform(get("/books"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(firstBook["id"].asLong()))
+            .andExpect(jsonPath("$[0].title").value("First"))
+            .andExpect(jsonPath("$[0].authors[0].id").value(alice))
+            .andExpect(jsonPath("$[0].authors[1].id").value(bob))
+    }
+
+    @Test
+    fun `serves the management screen from the root path`() {
+        mvc.perform(get("/"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("書籍管理システム")))
     }
 
     @Test

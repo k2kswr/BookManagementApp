@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BookService(private val repository: BookRepository, private val authors: AuthorRepository) {
+    @Transactional(readOnly = true)
+    fun findAll(): List<BookResponse> = repository.findAll()
+
     @Transactional
     fun create(request: BookRequest): BookResponse {
         validateAuthors(request.authorIds)

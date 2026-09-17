@@ -2,6 +2,7 @@ package com.example.bookmanagement.book
 
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/books")
 class BookController(private val service: BookService) {
+    @GetMapping
+    fun findAll(): List<BookResponse> = service.findAll()
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: BookRequest): BookResponse = service.create(request)

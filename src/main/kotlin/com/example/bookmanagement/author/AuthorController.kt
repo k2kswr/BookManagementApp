@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/authors")
 class AuthorController(private val service: AuthorService, private val bookService: BookService) {
+    @GetMapping
+    fun findAll(): List<AuthorResponse> = service.findAll()
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: AuthorRequest): AuthorResponse = service.create(request)

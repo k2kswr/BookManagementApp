@@ -9,6 +9,11 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class BookRepository(private val dsl: DSLContext) {
+    fun findAll(): List<BookResponse> {
+        val ids = dsl.select(BOOKS.ID).from(BOOKS).orderBy(BOOKS.ID).fetch(BOOKS.ID).map { checkNotNull(it) }
+        return findAll(ids)
+    }
+
     fun create(request: BookRequest): Long = checkNotNull(
         dsl.insertInto(BOOKS)
             .set(BOOKS.TITLE, request.title)

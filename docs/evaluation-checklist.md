@@ -1,6 +1,6 @@
 # 評価観点チェックリスト
 
-この資料は、コーディングテストの評価観点に対する実装の対応状況と確認根拠をまとめたものです。2026-09-14に、Docker上のPostgreSQLを使って`clean build`を実行し、単体テスト13件・結合テスト27件、合計40件の成功を確認しています。
+この資料は、コーディングテストの評価観点に対する実装の対応状況と確認根拠をまとめたものです。管理画面はSpring Bootの静的リソースとして追加しており、バックエンドの構成と既存APIの互換性を維持しています。
 
 ## 結果一覧
 
@@ -9,13 +9,13 @@
 | 指定された技術スタックの適用 | 対応済み | Kotlin、Java 21、Spring Boot、jOOQ、PostgreSQL、Flyway、Gradle Kotlin DSLを採用 |
 | フレームワークやライブラリの適切な利用 | 対応済み | Spring MVC / Validation / Transaction、Flyway、jOOQ、Testcontainers、ktlintを目的ごとに使用 |
 | 実行可能性 | 対応済み | Gradle Wrapper、Java 21自動取得、Docker Compose、README、GitHub Actionsを用意 |
-| 仕様に沿った動作 | 対応済み | 5 API、入力制約、多対多、出版状況遷移、エラー応答を実装・結合テストで確認 |
+| 仕様に沿った動作 | 対応済み | 7 API、入力制約、多対多、出版状況遷移、エラー応答を実装・結合テストで確認 |
 | 名前の明確さ | 対応済み | Controller / Service / Repository、DTO、メソッド名が責務を表す |
 | Null安全性 | 対応済み | Kotlinの非Null型と`val`、Bean Validation、厳密なJackson設定を使用 |
 | コードフォーマットの整合性 | 対応済み | `ktlintCheck`を`clean build`とCIで実行 |
 | 再代入を避けるなどのベストプラクティス | 対応済み | 本番コードは`val`とコンストラクタインジェクションを基本とし、`!!`を使用しない |
 | オーバーエンジニアリングしていないか | 対応済み | 単一モジュール、3層、必要なDTOのみで構成。不要な汎用化・認証・検索機能は追加しない |
-| 適切な単体テスト | 対応済み | 業務ルール単体テストと、実DBを使う結合テストを分離して40件を実行 |
+| 適切な単体テスト | 対応済み | 業務ルール単体テストと、実DBを使う結合テストを分離。画面配信・一覧APIの結合テストも追加 |
 
 ## 観点ごとの確認内容
 
@@ -53,6 +53,8 @@ Docker Engineが起動していることは、ローカルでのDB起動・Testc
 | 著者の登録・更新 | `POST /authors`、`PUT /authors/{authorId}`。未来の生年月日を拒否 |
 | 書籍の登録・更新 | `POST /books`、`PUT /books/{bookId}`。価格、著者、出版状況を検証 |
 | 著者に紐づく書籍取得 | `GET /authors/{authorId}/books`。共著者を含む書籍一覧を返す |
+| 一覧取得 | `GET /authors`と`GET /books`。管理画面の一覧と著者選択肢に使用 |
+| 管理画面 | `GET /`。著者・書籍の一覧、登録、全項目更新、著者別書籍取得をブラウザで確認可能 |
 | 複数著者 | `book_authors`中間テーブルと`authorIds`配列で実装 |
 | 最低1著者 | `@NotEmpty`とServiceの重複・存在確認で保証 |
 | 出版済みから未出版への変更禁止 | 行ロック後の状態遷移判定で409を返す |
@@ -72,7 +74,7 @@ Docker Engineが起動していることは、ローカルでのDB起動・Testc
 
 - 認証・認可
 - 削除、検索、ページング
-- フロントエンド、外部公開、複数モジュール化
+- 外部公開、複数モジュール化
 - 用途のないインターフェース、汎用基底クラス、独自の抽象化レイヤー
 
 一方で、多対多の整合性、トランザクション、状態遷移、エラー応答は仕様上必要なため実装しています。
@@ -84,7 +86,7 @@ Docker Engineが起動していることは、ローカルでのDB起動・Testc
 | 単体 | `PublicationStatusTest.kt` | 出版状況の4遷移 |
 | 単体 | `BookRequestValidationTest.kt` | 価格の0、負数、整数桁、小数桁の境界 |
 | 単体 | `AuthorServiceTest.kt` | Asia/Tokyo基準の生年月日境界 |
-| 結合 | `ApiIntegrationTest.kt` | HTTP、DB保存、多著者、置換、400/404/409、ロールバック、同時更新 |
+| 結合 | `ApiIntegrationTest.kt` | HTTP、DB保存、多著者、置換、一覧、画面配信、400/404/409、ロールバック、同時更新 |
 
 結合テストは`@Tag("integration")`で分離しています。`test`は単体テストのみ、`integrationTest`はSpring Boot・jOOQ・PostgreSQLを組み合わせて実行します。
 
